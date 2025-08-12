@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Public Holidays Calendar</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #005f73;
+            color: #fff;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .control-group label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #003d4a;
+        }
+
+        #state-select, #holiday-search, #year-select {
+            padding: 0.75rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            width: 250px;
+        }
+
+        #holiday-display-container {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #display-title {
+            margin-top: 0;
+            color: #005f73;
+            border-bottom: 2px solid #94d2bd;
+            padding-bottom: 0.5rem;
+        }
+
+        #holiday-display {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 1rem; /* For scrollbar spacing */
+        }
+
+        /* Custom Scrollbar */
+        #holiday-display::-webkit-scrollbar {
+            width: 8px;
+        }
+        #holiday-display::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        #holiday-display::-webkit-scrollbar-thumb {
+            background: #94d2bd;
+            border-radius: 4px;
+        }
+        #holiday-display::-webkit-scrollbar-thumb:hover {
+            background: #0a9396;
+        }
+
+        .year-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .year-header {
+            background-color: #e9d8a6;
+            color: #333;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .holiday-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .holiday-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .holiday-list li:last-child {
+            border-bottom: none;
+        }
+
+        .holiday-list li .date {
+            font-weight: bold;
+            color: #0077b6;
+        }
+
+        .holiday-list li .name {
+            color: #555;
+        }
+
+        #common-holidays {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #e0fbfc;
+            border-left: 5px solid #0a9396;
+            border-radius: 8px;
+        }
+
+        #common-holidays h3 {
+            margin-top: 0;
+            color: #005f73;
+        }
+
+        .holiday-search-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .holiday-search-table th, .holiday-search-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .holiday-search-table thead th {
+            background-color: #e9d8a6;
+            color: #333;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .holiday-search-table tbody tr:hover {
+            background-color: #f0f8ff;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            .controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            #state-select, #holiday-search, #year-select {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Indian Public Holidays (2023-2025)</h1>
+        <p>A calendar of major public holidays in India. Select a state or search for a holiday.</p>
+    </header>
+
+    <main>
+        <div class="controls">
+            <div class="control-group">
+                <label for="year-select">Select a Year:</label>
+                <select id="year-select"></select>
+            </div>
+            <div class="control-group">
+                <label for="state-select">Select a State:</label>
+                <select id="state-select"></select>
+            </div>
+            <div class="control-group">
+                <label for="holiday-search">Search for a Holiday:</label>
+                <input type="search" id="holiday-search" placeholder="e.g., Diwali">
+            </div>
+        </div>
+
+        <div id="holiday-display-container">
+            <h2 id="display-title">Holidays in Maharashtra</h2>
+            <div id="holiday-display">
+                <!-- Holiday data will be injected here by JavaScript -->
+            </div>
+        </div>
+
+        <div id="common-holidays">
+            <h3>Common Holidays Explained</h3>
+            <p><strong>Diwali:</strong> The festival of lights, celebrated across India, symbolizing the victory of light over darkness.</p>
+            <p><strong>Holi:</strong> The festival of colors, marking the arrival of spring and celebrating love and new beginnings.</p>
+            <p><strong>Independence Day (August 15):</strong> Commemorates India's independence from the United Kingdom in 1947.</p>
+            <p><strong>Gandhi Jayanti (October 2):</strong> Celebrates the birthday of Mahatma Gandhi, the "Father of the Nation".</p>
+            <p><strong>Christmas (December 25):</strong> Celebrates the birth of Jesus Christ and is a major festival for Christians and widely celebrated by others.</p>
+            <p><small><i>Disclaimer: Holiday dates, especially for festivals based on lunar calendars, can vary slightly by region and are subject to change. This list is for reference purposes.</i></small></p>
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by Gemini Code Assist</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentSearchResults = [];
+
+
+            // --- DATA INITIALIZATION ---
+
+            // 1. Specific, regional holiday data that overrides the common list.
+            const holidays = {
+                "2025": {
+                    "Telangana": [{ date: "2025-01-01", name: "New Year's Day" }, { date: "2025-01-14", name: "Makar Sankranti" }, { date: "2025-03-14", name: "Holi" }, { date: "2025-03-31", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2025-04-18", name: "Good Friday" }, { date: "2025-05-01", name: "May Day" }, { date: "2025-06-02", name: "Telangana Formation Day" }, { date: "2025-08-15", name: "Independence Day" }, { date: "2025-08-29", name: "Ganesh Chaturthi" }, { date: "2025-10-02", name: "Gandhi Jayanti" }, { date: "2025-10-02", name: "Dussehra (Vijaya Dashami)" }, { date: "2025-10-21", name: "Diwali" }, { date: "2025-12-25", name: "Christmas" }],
+                    "Tamil Nadu": [{ date: "2025-01-01", name: "New Year's Day" }, { date: "2025-01-14", name: "Pongal" }, { date: "2025-03-31", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2025-04-14", name: "Tamil New Year" }, { date: "2025-04-18", name: "Good Friday" }, { date: "2025-05-01", name: "May Day" }, { date: "2025-08-15", name: "Independence Day" }, { date: "2025-10-01", name: "Mahanavami" }, { date: "2025-10-02", name: "Gandhi Jayanti" }, { date: "2025-10-20", name: "Diwali (Naraka Chaturdashi)" }, { date: "2025-12-25", name: "Christmas" }],
+                    "Kerala": [{ date: "2025-01-01", name: "New Year's Day" }, { date: "2025-03-31", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2025-04-14", name: "Vishu" }, { date: "2025-04-18", name: "Good Friday" }, { date: "2025-05-01", name: "May Day" }, { date: "2025-08-15", name: "Independence Day" }, { date: "2025-09-05", name: "First Onam" }, { date: "2025-09-06", name: "Thiruvonam" }, { date: "2025-10-02", name: "Gandhi Jayanti" }, { date: "2025-10-01", name: "Mahanavami" }, { date: "2025-10-21", name: "Diwali" }, { date: "2025-12-25", name: "Christmas" }],
+                    "Maharashtra": [{ date: "2025-01-01", name: "New Year's Day" }, { date: "2025-02-26", name: "Maha Shivratri" }, { date: "2025-03-14", name: "Holi" }, { date: "2025-03-31", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2025-04-18", name: "Good Friday" }, { date: "2025-05-01", name: "May Day" }, { date: "2025-08-15", name: "Independence Day" }, { date: "2025-08-29", name: "Ganesh Chaturthi" }, { date: "2025-10-02", name: "Gandhi Jayanti" }, { date: "2025-10-02", name: "Dussehra" }, { date: "2025-10-21", name: "Diwali Amavasya (Lakshmi Pujan)" }, { date: "2025-10-22", name: "Diwali (Bali Pratipada)" }, { date: "2025-12-25", name: "Christmas" }],
+                    "West Bengal": [{ date: "2025-01-01", name: "New Year's Day" }, { date: "2025-01-14", name: "Makar Sankranti" }, { date: "2025-03-14", name: "Doljatra" }, { date: "2025-03-31", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2025-04-15", name: "Bengali New Year" }, { date: "2025-04-18", name: "Good Friday" }, { date: "2025-05-01", name: "May Day" }, { date: "2025-08-15", name: "Independence Day" }, { date: "2025-10-02", name: "Gandhi Jayanti" }, { date: "2025-10-02", name: "Dussehra (Vijaya Dashami)" }, { date: "2025-10-20", name: "Kali Puja" }, { date: "2025-12-25", name: "Christmas" }],
+                    "Odisha": [{ date: "2025-01-01", name: "New Year's Day" }, { date: "2025-01-14", name: "Makar Sankranti" }, { date: "2025-03-14", name: "Dola Purnima" }, { date: "2025-03-31", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2025-05-01", name: "May Day" }, { date: "2025-06-29", name: "Ratha Yatra" }, { date: "2025-08-15", name: "Independence Day" }, { date: "2025-08-29", name: "Ganesh Chaturthi" }, { date: "2025-10-02", name: "Gandhi Jayanti" }, { date: "2025-10-02", name: "Dussehra" }, { date: "2025-10-20", name: "Diwali" }, { date: "2025-12-25", name: "Christmas" }],
+                },
+                "2024": {
+                    "Telangana": [{ date: "2024-01-01", name: "New Year's Day" }, { date: "2024-01-15", name: "Makar Sankranti" }, { date: "2024-03-25", name: "Holi" }, { date: "2024-04-11", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2024-06-02", name: "Telangana Formation Day" }, { date: "2024-08-15", name: "Independence Day" }, { date: "2024-09-07", name: "Ganesh Chaturthi" }, { date: "2024-10-02", name: "Gandhi Jayanti" }, { date: "2024-10-12", name: "Dussehra" }, { date: "2024-10-31", name: "Diwali" }, { date: "2024-12-25", name: "Christmas" }],
+                    "Tamil Nadu": [{ date: "2024-01-01", name: "New Year's Day" }, { date: "2024-01-15", name: "Pongal" }, { date: "2024-03-29", name: "Good Friday" }, { date: "2024-04-11", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2024-04-14", name: "Tamil New Year" }, { date: "2024-05-01", name: "May Day" }, { date: "2024-08-15", name: "Independence Day" }, { date: "2024-10-02", name: "Gandhi Jayanti" }, { date: "2024-10-11", name: "Mahanavami" }, { date: "2024-10-31", name: "Diwali (Naraka Chaturdashi)" }, { date: "2024-12-25", name: "Christmas" }],
+                    "Kerala": [{ date: "2024-03-29", name: "Good Friday" }, { date: "2024-04-11", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2024-04-14", name: "Vishu" }, { date: "2024-05-01", name: "May Day" }, { date: "2024-08-15", name: "Independence Day" }, { date: "2024-09-14", name: "First Onam" }, { date: "2024-09-15", name: "Thiruvonam" }, { date: "2024-10-02", name: "Gandhi Jayanti" }, { date: "2024-10-11", name: "Mahanavami" }, { date: "2024-10-31", name: "Diwali" }, { date: "2024-12-25", name: "Christmas" }],
+                    "Maharashtra": [{ date: "2024-01-01", name: "New Year's Day" }, { date: "2024-03-08", name: "Maha Shivratri" }, { date: "2024-03-25", name: "Holi" }, { date: "2024-04-11", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2024-03-29", name: "Good Friday" }, { date: "2024-05-01", name: "May Day" }, { date: "2024-08-15", name: "Independence Day" }, { date: "2024-09-07", name: "Ganesh Chaturthi" }, { date: "2024-10-02", name: "Gandhi Jayanti" }, { date: "2024-10-12", name: "Dussehra" }, { date: "2024-11-01", name: "Diwali Amavasya (Lakshmi Pujan)" }, { date: "2024-11-02", name: "Diwali (Bali Pratipada)" }, { date: "2024-12-25", name: "Christmas" }],
+                    "West Bengal": [{ date: "2024-01-15", name: "Makar Sankranti" }, { date: "2024-03-25", name: "Doljatra" }, { date: "2024-04-11", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2024-04-14", name: "Bengali New Year" }, { date: "2024-05-01", name: "May Day" }, { date: "2024-08-15", name: "Independence Day" }, { date: "2024-10-02", name: "Gandhi Jayanti" }, { date: "2024-10-12", name: "Dussehra" }, { date: "2024-10-31", name: "Kali Puja" }, { date: "2024-12-25", name: "Christmas" }],
+                    "Odisha": [{ date: "2024-01-15", name: "Makar Sankranti" }, { date: "2024-03-25", name: "Dola Purnima" }, { date: "2024-04-11", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2024-07-07", name: "Ratha Yatra" }, { date: "2024-08-15", name: "Independence Day" }, { date: "2024-09-07", name: "Ganesh Chaturthi" }, { date: "2024-10-02", name: "Gandhi Jayanti" }, { date: "2024-10-12", name: "Dussehra" }, { date: "2024-10-31", name: "Diwali" }, { date: "2024-12-25", name: "Christmas" }],
+                },
+                "2023": {
+                    "Telangana": [{ date: "2023-01-15", name: "Makar Sankranti" }, { date: "2023-03-08", name: "Holi" }, { date: "2023-04-22", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2023-06-02", name: "Telangana Formation Day" }, { date: "2023-08-15", name: "Independence Day" }, { date: "2023-09-19", name: "Ganesh Chaturthi" }, { date: "2023-10-02", name: "Gandhi Jayanti" }, { date: "2023-10-24", name: "Dussehra" }, { date: "2023-11-12", name: "Diwali" }, { date: "2023-12-25", name: "Christmas" }],
+                    "Tamil Nadu": [{ date: "2023-01-15", name: "Pongal" }, { date: "2023-04-07", name: "Good Friday" }, { date: "2023-04-14", name: "Tamil New Year" }, { date: "2023-04-22", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2023-05-01", name: "May Day" }, { date: "2023-08-15", name: "Independence Day" }, { date: "2023-10-02", name: "Gandhi Jayanti" }, { date: "2023-10-23", name: "Mahanavami" }, { date: "2023-11-12", name: "Diwali (Naraka Chaturdashi)" }, { date: "2023-12-25", name: "Christmas" }],
+                    "Kerala": [{ date: "2023-04-07", name: "Good Friday" }, { date: "2023-04-14", name: "Vishu" }, { date: "2023-04-22", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2023-05-01", name: "May Day" }, { date: "2023-08-15", name: "Independence Day" }, { date: "2023-08-28", name: "First Onam" }, { date: "2023-08-29", name: "Thiruvonam" }, { date: "2023-10-02", name: "Gandhi Jayanti" }, { date: "2023-10-23", name: "Mahanavami" }, { date: "2023-11-12", name: "Diwali" }, { date: "2023-12-25", name: "Christmas" }],
+                    "Maharashtra": [{ date: "2023-01-01", name: "New Year's Day" }, { date: "2023-02-18", name: "Maha Shivratri" }, { date: "2023-03-07", name: "Holi" }, { date: "2023-04-22", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2023-04-07", name: "Good Friday" }, { date: "2023-05-01", name: "May Day" }, { date: "2023-08-15", name: "Independence Day" }, { date: "2023-09-19", name: "Ganesh Chaturthi" }, { date: "2023-10-02", name: "Gandhi Jayanti" }, { date: "2023-10-24", name: "Dussehra" }, { date: "2023-11-12", name: "Diwali Amavasya (Lakshmi Pujan)" }, { date: "2023-11-14", name: "Diwali (Bali Pratipada)" }, { date: "2023-12-25", name: "Christmas" }],
+                    "West Bengal": [{ date: "2023-01-15", name: "Makar Sankranti" }, { date: "2023-03-07", name: "Doljatra" }, { date: "2023-04-15", name: "Bengali New Year" }, { date: "2023-04-22", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2023-05-01", name: "May Day" }, { date: "2023-08-15", name: "Independence Day" }, { date: "2023-10-02", name: "Gandhi Jayanti" }, { date: "2023-10-24", name: "Dussehra" }, { date: "2023-11-12", name: "Kali Puja" }, { date: "2023-12-25", name: "Christmas" }],
+                    "Odisha": [{ date: "2023-01-15", name: "Makar Sankranti" }, { date: "2023-03-07", name: "Dola Purnima" }, { date: "2023-04-22", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2023-06-20", name: "Ratha Yatra" }, { date: "2023-08-15", name: "Independence Day" }, { date: "2023-09-19", name: "Ganesh Chaturthi" }, { date: "2023-10-02", name: "Gandhi Jayanti" }, { date: "2023-10-24", name: "Dussehra" }, { date: "2023-11-12", name: "Diwali" }, { date: "2023-12-25", name: "Christmas" }],
+                }
+            };
+
+            // 2. Define a list of all states
+            const allStates = [
+                "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", 
+                "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", 
+                "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", 
+                "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", 
+                "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+            ];
+
+            // 3. Programmatically fill in missing data to ensure all states have comprehensive lists
+            function initializeHolidayData() {
+                const commonHolidaysByYear = {
+                    "2025": [
+                        { date: "2025-01-01", name: "New Year's Day" }, { date: "2025-01-14", name: "Pongal / Makar Sankranti" }, { date: "2025-02-26", name: "Maha Shivratri" }, { date: "2025-03-14", name: "Holi" }, { date: "2025-03-31", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2025-04-18", name: "Good Friday" }, { date: "2025-05-01", name: "May Day" }, { date: "2025-08-15", name: "Independence Day" }, { date: "2025-08-29", name: "Ganesh Chaturthi" }, { date: "2025-10-02", name: "Gandhi Jayanti" }, { date: "2025-10-02", name: "Dussehra" }, { date: "2025-10-21", name: "Diwali" }, { date: "2025-12-25", name: "Christmas" }
+                    ],
+                    "2024": [
+                        { date: "2024-01-01", name: "New Year's Day" }, { date: "2024-01-15", name: "Pongal / Makar Sankranti" }, { date: "2024-03-08", name: "Maha Shivratri" }, { date: "2024-03-25", name: "Holi" }, { date: "2024-03-29", name: "Good Friday" }, { date: "2024-04-11", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2024-05-01", name: "May Day" }, { date: "2024-08-15", name: "Independence Day" }, { date: "2024-09-07", name: "Ganesh Chaturthi" }, { date: "2024-10-02", name: "Gandhi Jayanti" }, { date: "2024-10-12", name: "Dussehra" }, { date: "2024-11-01", name: "Diwali" }, { date: "2024-12-25", name: "Christmas" }
+                    ],
+                    "2023": [
+                        { date: "2023-01-01", name: "New Year's Day" }, { date: "2023-01-15", name: "Pongal / Makar Sankranti" }, { date: "2023-02-18", name: "Maha Shivratri" }, { date: "2023-03-08", name: "Holi" }, { date: "2023-04-07", name: "Good Friday" }, { date: "2023-04-22", name: "Ramzan (Eid-ul-Fitr)" }, { date: "2023-05-01", name: "May Day" }, { date: "2023-08-15", name: "Independence Day" }, { date: "2023-09-19", name: "Ganesh Chaturthi" }, { date: "2023-10-02", name: "Gandhi Jayanti" }, { date: "2023-10-24", name: "Dussehra" }, { date: "2023-11-12", name: "Diwali" }, { date: "2023-12-25", name: "Christmas" }
+                    ]
+                };
+
+                for (let year = 2025; year >= 2023; year--) {
+                    if (!holidays[year]) holidays[year] = {};
+                    
+                    const commonDataForYear = commonHolidaysByYear[year];
+                    const placeholderData = [
+                        { date: `${year}-01-01`, name: "New Year's Day" },
+                        { date: `${year}-08-15`, name: "Independence Day" },
+                        { date: `${year}-10-02`, name: "Gandhi Jayanti" },
+                        { date: `${year}-12-25`, name: "Christmas" },
+                        { date: "N/A", name: "More holiday data not available." }
+                    ];
+
+                    allStates.forEach(state => {
+                        if (!holidays[year][state]) {
+                            // Use detailed common list for recent years, basic placeholder for older years
+                            holidays[year][state] = commonDataForYear ? commonDataForYear : placeholderData;
+                        }
+                    });
+                }
+            }
+
+            // --- DOM ELEMENTS ---
+            const stateSelect = document.getElementById('state-select');
+            const yearSelect = document.getElementById('year-select');
+            const holidaySearch = document.getElementById('holiday-search');
+            const holidayDisplay = document.getElementById('holiday-display');
+            const displayTitle = document.getElementById('display-title');
+
+            // --- FUNCTIONS ---
+
+            /**
+             * Populates the year dropdown.
+             */
+            function populateYears() {
+                const optionAll = document.createElement('option');
+                optionAll.value = "all";
+                optionAll.textContent = "All Years";
+                yearSelect.appendChild(optionAll);
+
+                for (let year = 2025; year >= 2023; year--) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    yearSelect.appendChild(option);
+                }
+            }
+            /**
+             * Populates the state dropdown with all available states.
+             */
+            function populateStates() {
+                allStates.forEach(state => {
+                    const option = document.createElement('option');
+                    option.value = state;
+                    option.textContent = state;
+                    stateSelect.appendChild(option);
+                });
+            }
+
+            /**
+             * Displays holidays based on the selected state and year.
+             */
+            function displayHolidays() {
+                const selectedState = stateSelect.value;
+                const selectedYear = yearSelect.value;
+
+                holidayDisplay.innerHTML = '';
+                displayTitle.textContent = `Holidays in ${selectedState}`;
+
+                if (!selectedState) {
+                    holidayDisplay.innerHTML = '<p>Please select a state to see the holidays.</p>';
+                    return;
+                }
+
+                let contentAdded = false;
+                const startYear = selectedYear === 'all' ? 2025 : parseInt(selectedYear);
+                const endYear = selectedYear === 'all' ? 2023 : parseInt(selectedYear);
+
+                for (let year = startYear; year >= endYear; year--) {
+                    const yearData = holidays[year] && holidays[year][selectedState];
+                    
+                    if (yearData && yearData.length > 0) {
+                        contentAdded = true;
+
+                        const yearContainer = document.createElement('div');
+                        yearContainer.className = 'year-container';
+
+                        const yearHeader = document.createElement('h3');
+                        yearHeader.className = 'year-header';
+                        yearHeader.textContent = year;
+                        yearContainer.appendChild(yearHeader);
+
+                        const holidayList = document.createElement('ul');
+                        holidayList.className = 'holiday-list';
+
+                        yearData.forEach(holiday => {
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `<span class="date">${holiday.date}</span> <span class="name">${holiday.name}</span>`;
+                            holidayList.appendChild(listItem);
+                        });
+
+                        yearContainer.appendChild(holidayList);
+                        holidayDisplay.appendChild(yearContainer);
+                    }
+                }
+
+                if (!contentAdded) {
+                    holidayDisplay.innerHTML = `<p>No holiday data available for ${selectedState} in the selected year(s).</p>`;
+                }
+            }
+
+            /**
+             * Searches for a holiday, respecting the year filter, and triggers rendering of results.
+             * @param {string} query - The search term.
+             */
+            function searchHolidays(query) {
+                if (!query) {
+                    // If search is cleared, show the selected state's holidays
+                    currentSearchResults = [];
+                    displayHolidays();
+                    return;
+                }
+
+                displayTitle.textContent = `Search Results for "${query}"`;
+                const lowerCaseQuery = query.toLowerCase();
+                const selectedYear = yearSelect.value;
+
+                currentSearchResults = []; // Reset results
+
+                const startYear = selectedYear === 'all' ? 2025 : parseInt(selectedYear);
+                const endYear = selectedYear === 'all' ? 2023 : parseInt(selectedYear);
+
+
+                for (let year = startYear; year >= endYear; year--) {
+                    if (!holidays[year]) continue;
+
+                    for (const state in holidays[year]) {
+                        const stateHolidays = holidays[year][state];
+                        const matchingHolidays = stateHolidays.filter(holiday => 
+                            holiday.name.toLowerCase().includes(lowerCaseQuery)
+                        );
+
+                        if (matchingHolidays.length > 0) {
+                            matchingHolidays.forEach(holiday => {
+                                currentSearchResults.push({
+                                    state: state,
+                                    year: year,
+                                    date: holiday.date,
+                                    name: holiday.name
+                                });
+                            });
+                        }
+                    }
+                }
+
+                if (currentSearchResults.length === 0) {
+                    holidayDisplay.innerHTML = `<p>No holidays found matching "${query}".</p>`;
+                } else {
+                    renderGroupedSearchResults();
+                }
+            }
+
+            /**
+             * Renders the current search results, grouped by year.
+             */
+            function renderGroupedSearchResults() {
+                // 1. Group results by year
+                const groupedByYear = currentSearchResults.reduce((acc, holiday) => {
+                    const year = holiday.year;
+                    if (!acc[year]) {
+                        acc[year] = [];
+                    }
+                    acc[year].push(holiday);
+                    return acc;
+                }, {});
+
+                // 2. Render the grouped results
+                holidayDisplay.innerHTML = ''; // Clear display
+                const sortedYears = Object.keys(groupedByYear).sort((a, b) => b - a); // Sort years descending
+
+                sortedYears.forEach(year => {
+                    const yearContainer = document.createElement('div');
+                    yearContainer.className = 'year-container';
+
+                    const yearHeader = document.createElement('h3');
+                    yearHeader.className = 'year-header';
+                    yearHeader.textContent = `Year ${year}`;
+                    yearContainer.appendChild(yearHeader);
+
+                    const table = document.createElement('table');
+                    table.className = 'holiday-search-table';
+                    table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>State</th>
+                                <th>Date</th>
+                                <th>Holiday Name</th>
+                            </tr>
+                        </thead>
+                    `;
+
+                    const tableBody = document.createElement('tbody');
+                    groupedByYear[year].forEach(result => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `<td>${result.state}</td><td>${result.date}</td><td>${result.name}</td>`;
+                        tableBody.appendChild(row);
+                    });
+
+                    table.appendChild(tableBody);
+                    yearContainer.appendChild(table);
+                    holidayDisplay.appendChild(yearContainer);
+                });
+            }
+
+            // --- EVENT LISTENERS ---
+            stateSelect.addEventListener('change', (e) => {
+                holidaySearch.value = ''; // Clear search
+                displayHolidays();
+            });
+
+            yearSelect.addEventListener('change', (e) => {
+                holidaySearch.value = ''; // Clear search
+                if (holidaySearch.value) searchHolidays(holidaySearch.value);
+                else displayHolidays();
+            });
+
+            holidaySearch.addEventListener('input', (e) => {
+                searchHolidays(e.target.value);
+            });
+
+            // --- INITIALIZATION ---
+            initializeHolidayData();
+            populateYears();
+            populateStates();
+            stateSelect.value = "Maharashtra"; // Set a default state
+            displayHolidays();
+        });
+    </script>
+</body>
+</html>
